@@ -1,7 +1,7 @@
 {
   "name": "retirement-simulator",
-  "version": "0.1.0",
-  "description": "把未来拖到眼前：一个用人物年龄与穿搭表达退休选择的互动计算器。",
+  "version": "0.2.0",
+  "description": "奶龙退休变身器：拖动奶龙，看看你的退休龙生。",
   "private": true,
   "type": "module",
   "license": "MIT",

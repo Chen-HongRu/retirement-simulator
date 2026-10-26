@@ -1,8 +1,8 @@
-# 退休模拟器
+# 退休以后 · 奶龙退休变身器
 
-把未来拖到眼前。用滑块探索收入、工作年限与退休预算的关系，再用一位轻松自在的插画人物，看看那时的自己。
+班可以不上，账还是要算。拖动奶龙或滑杆，看看退休后的自己是泡面自由、公园常驻，还是龙王退休。
 
-这是一个无第三方依赖的中文静态网页，采用 MIT 许可证。计算在浏览器本地完成；分享链接把方案参数放在 URL 的 hash 中，拿到链接的人可以看到这些参数。
+这是一个无第三方运行库依赖的中文静态网页，代码采用 MIT 许可证。奶龙同人图片由 ImageGen 生成，素材说明见 [ASSETS.md](ASSETS.md)。计算和表情卡导出均在浏览器本地完成；分享链接把方案参数放在 URL 的 hash 中，拿到链接的人可以看到这些参数。
 
 [在线体验](https://retirement-playground-20261026.abloomegret517.chatgpt.site) · [GitHub 源码](https://github.com/Chen-HongRu/retirement-simulator) · [下载源码包](https://retirement-playground-20261026.abloomegret517.chatgpt.site/source-code.zip)
 
@@ -27,10 +27,11 @@ npm run build
 
 ## 可以探索什么
 
-- 拖动税后月收入、工作年限滑块，即时查看每月预算、退休资产和积累轨迹。
+- 直接左右拖动奶龙，或拖动工作年限滑杆，即时查看退休年龄、月预算与龙生状态。奶龙也支持方向键、Home、End，Shift + 方向键一次调 5 年。
 - 展开更多设置，调整当前年龄、初始资产、工作期实际年化收益和退休期实际年化收益。
-- 人物年龄等于当前年龄加工作年限；头发与面部细节随年龄变化。
-- 每月预算对应五组穿搭与小道具：简简单单、轻松日常、自在生活、精致时光、随心探索。穿搭独立于年龄，只表达生活场景，不衡量幸福或人的价值。
+- 退休年龄等于当前年龄加工作年限；奶龙在 < 40 岁、40–59 岁、≥ 60 岁时分别显示青年、中年、大爷形态。
+- 每月预算对应五套穿搭：泡面自由、奶茶自由、公园常驻、躺平大户、龙王退休。五列预算与三行年龄组成 15 个 ImageGen 图像状态；年龄与预算独立映射。
+- 抽一个「龙生盲盒」，随机生成一组有明确数值的假设；保存当前龙生为 PNG 表情卡。
 - 固定一份方案，与继续调整后的方案比较；通过链接分享当前参数。
 
 ## 计算口径
@@ -79,7 +80,9 @@ X = r(A₀G + SF) / (rF + 12)
 | `dist/styles.css` | 布局、颜色与响应式样式 |
 | `dist/app.js` | 滑块联动、图表、方案比较与链接分享 |
 | `dist/model.js` | 默认参数、输入边界与退休预算计算 |
-| `dist/avatar.js` | 原创 SVG 人物与五种生活场景 |
+| `dist/avatar.js` | 预算与年龄到奶龙图格的独立映射 |
+| `dist/assets/nailong-life-atlas.png` | ImageGen 生成的 5 × 3 奶龙同人图集 |
+| `docs/image-generation.md` | 生成工具、完整提示词与图集布局 |
 | `scripts/serve.mjs` | 本地静态服务器 |
 | `scripts/build.mjs` | 静态产物准备与源码压缩包生成 |
 | `tests/` | 计算、边界与相关行为测试 |
@@ -94,4 +97,6 @@ X = r(A₀G + SF) / (rF + 12)
 
 ## 许可证
 
-[MIT](LICENSE) · Copyright 2026 Retirement Simulator contributors
+代码：[MIT](LICENSE) · Copyright 2026 Retirement Simulator contributors。角色与图片说明：[ASSETS.md](ASSETS.md)。
+
+页面的中心装置与拖动角色玩法参考 [cholf5/liang-slider](https://github.com/cholf5/liang-slider)；阶段刻度、背景大字与最高档光环参考 [Lichtspektrum/liang-intensity-calibrator](https://github.com/Lichtspektrum/liang-intensity-calibrator)。未复制参考项目的图片或代码。

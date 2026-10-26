@@ -5,12 +5,15 @@ import { fileURLToPath } from 'node:url';
 import { deflateRawSync } from 'node:zlib';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const files = ['README.md', 'LICENSE', 'package.json', '.gitignore'];
-for (const directory of ['dist', 'scripts', 'tests', 'docs']) {
+const files = ['README.md', 'LICENSE', 'ASSETS.md', 'package.json', '.gitignore'];
+async function collect(directory) {
   for (const entry of await readdir(resolve(root, directory), { withFileTypes: true })) {
-    if (entry.isFile() && !entry.name.endsWith('.zip')) files.push(`${directory}/${entry.name}`);
+    const path = `${directory}/${entry.name}`;
+    if (entry.isDirectory()) await collect(path);
+    else if (entry.isFile() && !entry.name.endsWith('.zip')) files.push(path);
   }
 }
+for (const directory of ['dist', 'scripts', 'tests', 'docs']) await collect(directory);
 files.sort();
 const crcTable = Array.from({ length: 256 }, (_, n) => {
   for (let k = 0; k < 8; k++) n = (n & 1) ? 0xedb88320 ^ (n >>> 1) : n >>> 1;

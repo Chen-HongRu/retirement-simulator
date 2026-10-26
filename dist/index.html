@@ -3,84 +3,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f7f2">
-  <meta name="description" content="拖动滑杆，遇见未来的自己。用人物年龄、穿搭和资产曲线，探索工作年限与可持续月支出的关系。免费、开源、所有计算在本地完成。">
-  <title>退休以后 · 把未来拖到眼前</title>
+  <meta name="theme-color" content="#fff4cf">
+  <meta name="description" content="再拖一下，龙生就不一样了。用奶龙退休变身器，玩一玩工作年限与可持续月支出的关系。免费开源，所有计算在本地完成。">
+  <title>退休以后 · 奶龙退休变身器</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#controls">跳到计算器</a>
+  <a class="skip-link" href="#workYears">跳到工作年限滑杆</a>
   <header class="site-header wrap">
-    <a class="brand" href="./" aria-label="退休以后首页"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M7 27a13 13 0 0 1 26 0" fill="#efad63"/><path d="M4 28h32M9 34h22M20 4v5M6 12l4 4M34 12l-4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><span>退休以后<span class="brand-en">LIFE AFTER WORK</span></span></a>
-    <nav aria-label="主导航"><a class="nav-active" href="#playground">玩一玩</a><a href="#how-it-works">怎么算的</a><a href="https://github.com/Chen-HongRu/retirement-simulator" target="_blank" rel="noopener noreferrer" class="source-link"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>开源代码</a></nav>
+    <a class="brand" href="./" aria-label="退休以后首页"><span class="brand-icon" aria-hidden="true">退</span>退休以后<span class="brand-small">摸鱼研究所</span></a>
+    <nav aria-label="主导航"><a href="#how-it-works">怎么算的？</a><a class="source-link" href="https://github.com/Chen-HongRu/retirement-simulator" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav>
   </header>
   <main class="wrap" id="playground">
     <section class="intro">
-      <div><div class="eyebrow"><span></span> 给未来的自己，做个小实验</div><h1>把未来，<em>拖到眼前。</em><svg viewBox="0 0 70 55" aria-hidden="true"><path d="M5 11c29 0 48 12 44 31m-12-8 12 9 12-13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></h1><p>工作多久，每月花多少？滑一滑，看看你的另一种人生。</p></div>
-      <div class="intro-note"><span>没有标准答案</span><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><small>只有适合你的生活节奏</small></div>
+      <p class="eyebrow">非严肃龙生实验 / VOL. 001</p>
+      <h1>奶龙退休<span class="title-scribble">变身器<svg viewBox="0 0 240 20" aria-hidden="true"><path d="M4 12Q105-5 235 7M15 18Q130 5 224 15" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg></span><span class="title-star" aria-hidden="true">✳</span></h1>
+      <p class="intro-line">班可以不上，<strong>账还是要算。</strong><span>再拖一下，龙生就不一样了。</span></p>
     </section>
-    <section class="playground" aria-label="退休生活模拟器">
-      <form class="control-panel" id="controls">
-        <div class="panel-heading"><h2><span class="section-number">01</span> 调一调，未来的设定</h2><button type="button" class="text-button" id="reset">↺ 重置</button></div>
-        <div class="field">
-          <div class="field-heading"><label for="monthlyIncome">税后月收入</label><div class="value-input"><span>¥</span><input id="income-number" type="number" min="3000" max="100000" step="1000" value="20000" aria-label="税后月收入数值"></div></div>
-          <input id="monthlyIncome" name="monthlyIncome" type="range" min="3000" max="100000" step="1000" value="20000" aria-label="税后月收入">
-          <div class="range-labels"><span>3,000 元</span><span>100,000 元</span></div>
-        </div>
-        <div class="field">
-          <div class="field-heading"><label for="workYears">还想工作多久</label><output id="workYears-value" for="workYears">40 <small>年</small></output></div>
-          <input id="workYears" name="workYears" type="range" min="0" max="50" step="1" value="40">
-          <div class="range-labels"><span>现在退休</span><span>50 年</span></div>
-          <div class="presets" aria-label="工作年限快捷选择"><button type="button" data-years="20">20 年 · 早点出发</button><button type="button" data-years="30">30 年 · 慢慢来</button><button type="button" data-years="40" aria-pressed="true">40 年 · 从容准备</button></div>
-        </div>
-        <div class="field return-field">
-          <div class="field-heading"><label for="retirementReturn">退休后实际年收益率</label><output id="retirementReturn-value" for="retirementReturn">2.5<small>%</small></output></div>
-          <input id="retirementReturn" name="retirementReturn" type="range" min="0" max="5" step="0.1" value="2.5">
-          <div class="range-labels"><span>0%</span><span>5%</span></div>
-          <p class="field-hint">已扣除通胀、税费的假设收益，不是承诺。</p>
-        </div>
-        <details class="more-settings" id="settings">
-          <summary><span>再加一点你的情况</span><span class="summary-arrow">＋</span></summary>
-          <div class="extra-settings">
-            <div class="field"><div class="field-heading"><label for="currentAge">现在的年龄</label><output id="currentAge-value" for="currentAge">22 <small>岁</small></output></div><input id="currentAge" name="currentAge" type="range" min="18" max="60" step="1" value="22"><div class="range-labels"><span>18 岁</span><span>60 岁</span></div></div>
-            <div class="field"><div class="field-heading"><label for="initialAssets">已有可投资资产</label><div class="value-input small-input"><input id="assets-number" type="number" min="0" max="1000" step="1" value="0" aria-label="已有可投资资产，万元"><span>万</span></div></div><input id="initialAssets" name="initialAssets" type="range" min="0" max="10000000" step="10000" value="0"><div class="range-labels"><span>0</span><span>1,000 万</span></div></div>
-            <div class="field"><div class="field-heading"><label for="workReturn">工作期实际年收益率</label><output id="workReturn-value" for="workReturn">0<small>%</small></output></div><input id="workReturn" name="workReturn" type="range" min="-2" max="8" step="0.1" value="0"><div class="range-labels"><span>−2%</span><span>8%</span></div><p class="field-hint">默认 0%：只计储蓄；调高后计入复利。</p></div>
-          </div>
-        </details>
-        <div class="assumption-note"><span class="note-icon">i</span><p>默认从 <b id="start-age-note">22</b> 岁开始，已有资产 <b id="initial-note">0</b>。<br>退休前后花一样多，保留本金购买力。</p></div>
-      </form>
-      <div class="result-panel">
-        <section class="future-scene" aria-labelledby="future-title">
-          <div class="scene-top"><span class="scene-tag"><span></span> 未来生活预览</span><span class="scene-index">YOUR NEXT CHAPTER</span></div>
-          <div class="scene-copy"><h2 id="future-title">在 <span id="retirement-age">62</span> 岁，<br>开启<span id="lifestyle-name">精致时光</span>。</h2><p id="lifestyle-description">把日子过成自己喜欢的样子。</p></div>
-          <div class="scene-sun" aria-hidden="true"></div><svg class="scene-cloud" viewBox="0 0 140 50" aria-hidden="true"><path d="M8 40h118c8-22-15-33-28-20C90-8 49-4 43 22 26 10 7 19 8 40Z" fill="#fff" opacity=".6"/></svg>
-          <div class="scene-floor" aria-hidden="true"></div><div id="avatar" class="avatar-container"></div>
-          <div class="age-stamp"><strong id="age-stamp">62</strong><span>岁 / 退休时</span></div>
-          <div class="outfit-caption"><span>✧</span> 穿搭跟着月支出变</div>
-        </section>
-        <section class="spending-card" aria-label="计算结果">
-          <div class="spending-main"><p>可持续月支出 <span class="unit-tag">今天的购买力</span></p><div class="spending-value"><span>¥</span><strong id="monthly-spending">10,000</strong><small>/ 月</small></div><p class="spending-caption" id="spending-caption">从现在到退休后，都维持这个生活预算。</p></div>
-          <div class="spending-side"><div><span>退休时攒下</span><strong id="retirement-assets">480.0 <small>万元</small></strong></div><div><span id="saving-label">工作时每月存</span><strong id="monthly-saving">10,000 <small>元</small></strong></div></div>
-        </section>
-        <p class="result-note" id="result-note">这是固定收益假设下的平衡点，实际生活和市场都会变化。</p>
-        <a class="mobile-start" href="#controls">调整我的设定 ↓</a>
+    <form id="controls" class="retirement-machine" aria-label="奶龙退休变身器">
+      <div class="machine-heading"><span><i aria-hidden="true"></i>退休实验装置 <small>NAILOONG RETIRE-O-MATIC</small></span><button id="reset" type="button" class="text-button">↺ 重来</button></div>
+      <section class="future-scene" aria-label="你的奶龙退休生活">
+        <div id="stage-ghost" class="stage-ghost" aria-hidden="true">躺平</div><div class="dragon-aura" aria-hidden="true"></div>
+        <div class="scene-doodle doodle-one" aria-hidden="true">✦</div><div class="scene-doodle doodle-two" aria-hidden="true">♪</div><div class="scene-floor" aria-hidden="true"></div>
+        <div class="result-ticket"><p>退休后，每月可以花</p><div class="spending-value"><span>¥</span><strong id="monthly-spending">10,000</strong><small>/ 月</small></div><span class="unit-tag">按今天的购买力 · 可持续月支出</span></div>
+        <div class="age-stamp"><span>预计退休年龄</span><div><strong id="age-stamp">62</strong><b>岁</b></div><small>打卡结束！</small></div>
+        <div id="avatar" class="avatar-container"></div>
+        <div class="speech-bubble"><span aria-hidden="true">奶龙说：</span><p id="lifestyle-description">把日子过成自己喜欢的样子。</p></div>
+        <div class="lifestyle-sticker"><span>解锁龙生形态</span><h2 id="lifestyle-name">精致时光</h2><span class="sticker-arrow" aria-hidden="true">↖</span></div>
+      </section>
+      <ol class="lifestyle-ladder" aria-label="月支出对应的奶龙形态，随计算结果变化">
+        <li data-lifestyle-index="0"><span class="ladder-number" aria-hidden="true">01</span><b>泡面</b><small>&lt;3k</small></li>
+        <li data-lifestyle-index="1"><span class="ladder-number" aria-hidden="true">02</span><b>奶茶</b><small>3–6k</small></li>
+        <li data-lifestyle-index="2"><span class="ladder-number" aria-hidden="true">03</span><b>公园</b><small>6k–1万</small></li>
+        <li data-lifestyle-index="3"><span class="ladder-number" aria-hidden="true">04</span><b>躺平</b><small>1–1.8万</small></li>
+        <li data-lifestyle-index="4"><span class="ladder-number" aria-hidden="true">05</span><b>龙王</b><small>≥1.8万</small></li>
+      </ol>
+      <section class="year-console" aria-labelledby="year-heading">
+        <div class="year-heading"><div><label id="year-heading" for="workYears">还要上几年班？</label><p>↔ 拖动奶龙，或滑动下方滑杆</p></div><output id="workYears-value" for="workYears">40 <small>年</small></output></div>
+        <div class="hero-range"><input id="workYears" name="workYears" type="range" min="0" max="50" step="1" value="40"><span class="slider-finger" aria-hidden="true">☝</span></div>
+        <div class="year-ticks" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div>
+        <div class="range-labels"><span>0 年 · 立刻躺下</span><span>50 年 · 我还能干</span></div>
+        <div class="console-bottom"><p id="meme-status">状态：人已躺平，奶茶续命</p><div class="presets" aria-label="工作年限快捷选择"><button type="button" data-years="10">再熬 10 年</button><button type="button" data-years="20">20 年</button><button type="button" data-years="40" aria-pressed="true">40 年</button></div></div>
+      </section>
+      <div class="knob-panel">
+        <div class="field"><div class="field-heading"><label for="monthlyIncome">税后月收入</label><div class="value-input"><span>¥</span><input id="income-number" type="number" min="3000" max="100000" step="1000" value="20000" aria-label="税后月收入数值"></div></div><input id="monthlyIncome" name="monthlyIncome" type="range" min="3000" max="100000" step="1000" value="20000"><div class="range-labels"><span>3,000 元</span><span>100,000 元</span></div></div>
+        <div class="field"><div class="field-heading"><label for="retirementReturn">退休后实际年收益率</label><output id="retirementReturn-value" for="retirementReturn">2.5 <small>%</small></output></div><input id="retirementReturn" name="retirementReturn" type="range" min="0" max="5" step="0.1" value="2.5"><div class="range-labels"><span>0%</span><span>5%</span></div><p class="field-hint">扣除通胀、税费后的假设收益。</p></div>
       </div>
-    </section>
-    <section class="journey-panel" aria-labelledby="journey-title">
-      <div class="journey-heading"><div><h2 id="journey-title"><span class="section-number">02</span> 每一小步，都在靠近</h2><p>从现在到退休，你的资产会怎样积累？</p></div><button type="button" class="outline-button" id="compare">＋ 留住这一版，对比看看</button></div>
-      <div class="chart-layout"><div class="chart-main"><div class="chart-legend"><span><i class="legend-dot"></i>可投资资产</span><span><i class="legend-line"></i>累计净投入</span><span id="comparison-legend" hidden><i class="legend-line comparison"></i>留住的方案</span><span class="chart-unit">单位：万元</span></div><div id="asset-chart" class="asset-chart"></div></div><div class="journey-insight"><span class="insight-label" id="insight-label">给未来的自己</span><p id="insight-main">每一半收入，<br>换未来一份从容。</p><div class="saving-bar" aria-hidden="true"><span id="saving-bar"></span></div><div class="saving-legend"><span id="saving-percent">50% 留给未来</span><span id="spending-percent">50% 留给现在</span></div><p class="insight-detail" id="insight-detail">时间是你可以调节的另一种预算。</p></div></div>
-    </section>
-    <section class="bottom-grid" id="how-it-works">
-      <details class="model-details"><summary><span><span class="section-number">03</span> 数字背后，是怎么计算的？</span><span>＋</span></summary><div class="model-content"><p>我们寻找同一个月支出 <b>x</b>：工作时每月存下「月收入 − x」，退休后用假设收益覆盖「12x」的年支出，并维持本金购买力。</p><div class="formula">所需退休本金 = 月支出 × 12 ÷ 退休后实际年收益率</div><p>例如 2.5% 对应 480 倍月支出。若没有初始资产、工作期实际收益为 0%，月支出为：</p><div class="formula">x = 月收入 × 工作年数 × r ÷ (1 + 工作年数 × r)</div><p>有投资收益时，工作期按有效年利率换算月利率，并按月末存入计算复利。退休期采用年度支出近似，不模拟逐月提款的现金流。</p><ul><li>所有金额都是今天的购买力；工资与支出的实际值固定。</li><li>不含养老金、房产、大额支出、突发开销和收益波动。</li><li>0% 退休收益无法在保本条件下永久支持正支出；结果会显示 0。</li><li>着装只是预算档位的趣味映射，与幸福程度、城市生活成本无关。</li></ul><p class="reference">关于购买力：<a href="https://www.bls.gov/cpi/factsheets/purchasing-power-constant-dollars.htm" target="_blank" rel="noopener noreferrer">BLS · 通胀与不变价金额 ↗</a></p></div></details>
-      <div class="share-card"><div><strong>你的另一种人生，值得聊聊。</strong><p>把这组设定分享给朋友，一起想象。</p></div><button type="button" id="share" class="dark-button">分享我的设定 <span>↗</span></button></div>
-    </section>
+      <details class="more-settings" id="settings"><summary><span>＋ 我还有点别的情况</span><span class="summary-arrow" aria-hidden="true">↓</span></summary><div class="extra-settings">
+        <div class="field"><div class="field-heading"><label for="currentAge">现在的年龄</label><output id="currentAge-value" for="currentAge">22 <small>岁</small></output></div><input id="currentAge" name="currentAge" type="range" min="18" max="60" step="1" value="22"><div class="range-labels"><span>18 岁</span><span>60 岁</span></div></div>
+        <div class="field"><div class="field-heading"><label for="initialAssets">已有可投资资产</label><div class="value-input small-input"><input id="assets-number" type="number" min="0" max="1000" step="1" value="0" aria-label="已有可投资资产，万元"><span>万</span></div></div><input id="initialAssets" name="initialAssets" type="range" min="0" max="10000000" step="10000" value="0"><div class="range-labels"><span>0</span><span>1,000 万</span></div></div>
+        <div class="field"><div class="field-heading"><label for="workReturn">工作期实际年收益率</label><output id="workReturn-value" for="workReturn">0 <small>%</small></output></div><input id="workReturn" name="workReturn" type="range" min="-2" max="8" step="0.1" value="0"><div class="range-labels"><span>−2%</span><span>8%</span></div><p class="field-hint">默认 0%：只计储蓄；调高后计入复利。</p></div>
+      </div></details>
+      <div class="machine-actions"><button type="button" id="randomize" class="yellow-button"><span aria-hidden="true">⚄</span> 龙生盲盒</button><button type="button" id="export-card" class="paper-button">↓ 存下这只龙</button><button type="button" id="share" class="paper-button">分享设定 ↗</button></div>
+    </form>
+    <section class="receipt" aria-label="退休计算小票"><div class="receipt-title"><span>龙生小票</span><span>算钱是认真的</span></div><div class="receipt-grid"><div><span>退休时攒下</span><strong id="retirement-assets">480.0 <small>万元</small></strong></div><div><span id="saving-label">工作时每月存</span><strong id="monthly-saving">10,000 <small>元</small></strong></div><div><span>预计退休年龄</span><strong><span id="retirement-age">62</span> <small>岁</small></strong></div></div><p id="spending-caption">从现在到退休后，都维持这个生活预算。</p><p class="result-note" id="result-note">这是固定收益假设下的平衡点，实际生活和市场都会变化。</p><p class="assumption-note">从 <b id="start-age-note">22</b> 岁开始，已有资产 <b id="initial-note">0 万元</b>。退休前后花一样多，保留本金购买力。</p></section>
+    <details class="journey-panel"><summary><span><b aria-hidden="true">↗</b> 打开资产曲线，看看钱去哪了</span><span class="summary-arrow" aria-hidden="true">＋</span></summary><div class="journey-content"><div class="journey-heading"><p>从现在到退休的可投资资产</p><button type="button" class="outline-button" id="compare">＋ 留住这一版，对比看看</button></div><div class="chart-legend"><span><i class="legend-dot"></i>可投资资产</span><span><i class="legend-line"></i>累计净投入</span><span id="comparison-legend" hidden><i class="legend-line comparison"></i>留住的方案</span><span class="chart-unit">万元</span></div><div id="asset-chart" class="asset-chart"></div><div class="journey-insight"><span class="insight-label" id="insight-label">给未来的自己</span><p id="insight-main">时间是另一种预算。</p><div class="saving-bar" aria-hidden="true"><span id="saving-bar"></span></div><div class="saving-legend"><span id="saving-percent">50% 留给未来</span><span id="spending-percent">50% 留给现在</span></div><p class="insight-detail" id="insight-detail">时间是你可以调节的另一种预算。</p></div></div></details>
+    <details class="model-details" id="how-it-works"><summary><span><b aria-hidden="true">?</b> 奶龙负责整活，数字怎么算？</span><span class="summary-arrow" aria-hidden="true">＋</span></summary><div class="model-content"><p>寻找同一个月支出 <b>x</b>：工作时每月存下「月收入 − x」，退休后用假设收益覆盖「12x」的年支出，并维持本金购买力。</p><div class="formula">所需退休本金 = 月支出 × 12 ÷ 退休后实际年收益率</div><p>例如 2.5% 对应 480 倍月支出。若没有初始资产、工作期实际收益为 0%，月支出为：</p><div class="formula">x = 月收入 × 工作年数 × r ÷ (1 + 工作年数 × r)</div><p>有投资收益时，工作期按有效年利率换算月利率，按月末存入计算复利。退休期采用年度支出近似，不模拟逐月提款现金流。</p><ul><li>金额都是今天的购买力；工资与支出的实际值固定。</li><li>不含养老金、房产、大额支出、突发开销和收益波动。</li><li>0% 退休收益无法在保本条件下永久支持正支出，结果显示 0。</li><li>奶龙造型只映射预算档位，与幸福程度、城市生活成本无关。</li></ul><p><a href="https://www.bls.gov/cpi/factsheets/purchasing-power-constant-dollars.htm" target="_blank" rel="noopener noreferrer">关于购买力：BLS · 通胀与不变价金额 ↗</a></p></div></details>
   </main>
-  <footer class="wrap"><p>退休以后 <span>·</span> 少一点标准答案，多一点人生想象。</p><div><span>本地计算 · 不上传你的数据</span><a href="./source-code.zip" download>MIT 开源 ↗</a></div><p class="footer-disclaimer">趣味情景模拟，不构成投资建议；计算结果不代表未来可实现的收益。</p></footer>
+  <footer class="wrap"><p class="footer-signoff">先把今天过好，<span>明天再说。</span><span aria-hidden="true"> ☀</span></p><p>奶龙同人整活 · 非官方　/　本地计算，不上传你的数据</p><div class="footer-links"><a href="https://github.com/Chen-HongRu/retirement-simulator" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="./source-code.zip" download>下载源码 ↗</a><a href="https://github.com/cholf5/liang-slider" target="_blank" rel="noopener noreferrer">灵感：liang-slider ↗</a><a href="https://lichtspektrum.github.io/liang-intensity-calibrator/" target="_blank" rel="noopener noreferrer">灵感：强度校准器 ↗</a></div><p class="footer-disclaimer">趣味情景模拟，不构成投资建议；假设收益不代表未来可实现的收益。</p></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <p id="live-result" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
-  <dialog id="share-dialog"><form method="dialog"><button class="dialog-close" aria-label="关闭">×</button><h2>分享这组设定</h2><p>链接包含你的参数，打开即可复现。</p><label for="share-url">复制下方链接</label><input id="share-url" type="text" readonly><button class="dark-button">完成</button></form></dialog>
-  <noscript><p class="noscript">请启用 JavaScript 运行计算器。所有计算都在你的浏览器内完成。</p></noscript>
+  <dialog id="share-dialog"><form method="dialog"><button class="dialog-close" aria-label="关闭">×</button><h2>把这只退休龙发出去</h2><p>链接包含你的参数，打开即可复现。</p><label for="share-url">复制下方链接</label><input id="share-url" type="text" readonly><button class="yellow-button">完成</button></form></dialog>
+  <noscript><p class="noscript">请启用 JavaScript 运行计算器。所有计算都在浏览器内完成。</p></noscript>
 </body>
 </html>

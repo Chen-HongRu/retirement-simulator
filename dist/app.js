@@ -1,5 +1,5 @@
 import { DEFAULTS, LIMITS, calculatePlan } from './model.js';
-import { getLifestyle, renderAvatar } from './avatar.js';
+import { ATLAS, getLifestyle, getPortraitState, renderAvatar } from './avatar.js';
 
 const $ = (id) => document.getElementById(id);
 const fields = Object.keys(DEFAULTS);
@@ -10,6 +10,9 @@ let inputs = { ...DEFAULTS };
 let comparison = null;
 let liveTimer;
 let toastTimer;
+let portraitKey;
+let popTimer;
+let atlasImage;
 const setText = (id, value) => { $(id).textContent = value; };
 const setValueUnit = (id, value, unit) => {
   const small = document.createElement('small');
@@ -111,9 +114,34 @@ function render() {
   setText('retirement-age', plan.retirementAge);
   setText('age-stamp', plan.retirementAge);
   const lifestyle = getLifestyle(plan.monthlySpending);
-  setText('lifestyle-name', lifestyle.label);
-  setText('lifestyle-description', lifestyle.description);
-  $('avatar').innerHTML = renderAvatar({ age: plan.retirementAge, monthlySpending: plan.monthlySpending });
+  const portrait = getPortraitState({ age: plan.retirementAge, monthlySpending: plan.monthlySpending });
+  $('controls').dataset.stage = String(portrait.column);
+  $('controls').style.setProperty('--life-progress', Math.min(1, plan.monthlySpending / 18000));
+  setText('stage-ghost', plan.monthlySpending > 0 ? lifestyle.label.slice(0, 2) : '开局');
+  for (const stage of document.querySelectorAll('[data-lifestyle-index]')) {
+    const index = Number(stage.dataset.lifestyleIndex);
+    stage.classList.toggle('is-passed', index < portrait.column);
+    if (index === portrait.column) stage.setAttribute('aria-current', 'step');
+    else stage.removeAttribute('aria-current');
+  }
+  $('avatar').setAttribute('aria-valuenow', String(inputs.workYears));
+  $('avatar').setAttribute('aria-valuetext', `再工作 ${inputs.workYears} 年，${plan.retirementAge} 岁退休`);
+  setText('lifestyle-name', plan.monthlySpending > 0 ? lifestyle.label : '这会儿还躺不了');
+  setText('lifestyle-description', plan.monthlySpending > 0 ? lifestyle.description : '退休的心有了，生活费还没到位。');
+  setText('meme-status', plan.zeroReturn ? '实际收益为 0，保本退休暂时卡关。' : plan.monthlySpending === 0 ? '当前设定还没有可持续生活费。再调调？' : `${portrait.ageLabel}已就位 · ${plan.retirementAge >= 80 ? '钱攒到了，我也快成传说了。' : portrait.row === 2 ? '大爷只负责悠闲。' : portrait.row === 1 ? '班味正在散去。' : '年纪轻轻，先躺为敬。'}`);
+  if (portraitKey !== portrait.key) {
+    $('avatar').innerHTML = renderAvatar({ age: plan.retirementAge, monthlySpending: plan.monthlySpending });
+    if (portraitKey !== undefined) {
+      clearTimeout(popTimer);
+      $('avatar').classList.remove('is-popping');
+      void $('avatar').offsetWidth;
+      $('avatar').classList.add('is-popping');
+      popTimer = setTimeout(() => $('avatar').classList.remove('is-popping'), 380);
+    }
+    portraitKey = portrait.key;
+  } else {
+    $('avatar').firstElementChild.setAttribute('aria-label', `${portrait.age}岁的${portrait.ageLabel}，${lifestyle.label}，奶龙同人表情`);
+  }
   setText('monthly-spending', money.format(plan.monthlySpending));
   setValueUnit('retirement-assets', decimal.format(plan.retirementAssets / 10000), '万元');
   setText('saving-label', inputs.workYears === 0 ? (plan.monthlySaving < 0 ? '若工作每月动用资产' : '若工作每月可存') : plan.monthlySaving < 0 ? '每月动用资产' : '工作时每月存');
@@ -193,5 +221,142 @@ $('share').addEventListener('click', async () => {
   }
 });
 window.addEventListener('hashchange', hydrateHash);
+
+const dragonControl = $('avatar');
+dragonControl.setAttribute('role', 'slider');
+dragonControl.setAttribute('aria-label', '拖动奶龙调整工作年数');
+dragonControl.setAttribute('aria-valuemin', '0');
+dragonControl.setAttribute('aria-valuemax', '50');
+dragonControl.tabIndex = 0;
+let dragonDrag = null;
+dragonControl.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || !event.isPrimary) return;
+  dragonDrag = {
+    pointerId: event.pointerId,
+    x: event.clientX,
+    years: inputs.workYears,
+    travel: Math.max(200, dragonControl.getBoundingClientRect().width),
+  };
+  dragonControl.setPointerCapture(event.pointerId);
+  dragonControl.classList.add('is-dragging');
+});
+dragonControl.addEventListener('pointermove', event => {
+  if (!dragonDrag || event.pointerId !== dragonDrag.pointerId) return;
+  inputs.workYears = quantize('workYears', dragonDrag.years + (event.clientX - dragonDrag.x) * 50 / dragonDrag.travel);
+  render();
+});
+function finishDragonDrag(event) {
+  if (!dragonDrag || event.pointerId !== dragonDrag.pointerId) return;
+  dragonDrag = null;
+  dragonControl.classList.remove('is-dragging');
+  if (dragonControl.hasPointerCapture(event.pointerId)) dragonControl.releasePointerCapture(event.pointerId);
+}
+dragonControl.addEventListener('pointerup', finishDragonDrag);
+dragonControl.addEventListener('pointercancel', finishDragonDrag);
+dragonControl.addEventListener('lostpointercapture', finishDragonDrag);
+dragonControl.addEventListener('keydown', event => {
+  const step = event.shiftKey ? 5 : 1;
+  let next;
+  if (['ArrowLeft', 'ArrowDown'].includes(event.key)) next = inputs.workYears - step;
+  else if (['ArrowRight', 'ArrowUp'].includes(event.key)) next = inputs.workYears + step;
+  else if (event.key === 'Home') next = 0;
+  else if (event.key === 'End') next = 50;
+  else return;
+  event.preventDefault();
+  inputs.workYears = quantize('workYears', next);
+  render();
+});
+
+$('randomize').addEventListener('click', () => {
+  const pick = (values) => values[Math.floor(Math.random() * values.length)];
+  inputs = {
+    monthlyIncome: pick([6000, 10000, 15000, 20000, 30000, 50000]),
+    workYears: pick([5, 10, 15, 20, 25, 30, 35, 40]),
+    currentAge: pick([22, 25, 30, 35, 40]),
+    initialAssets: pick([0, 0, 100000, 500000, 1000000]),
+    workReturn: pick([0, 0, 1, 2]),
+    retirementReturn: pick([1, 1.5, 2, 2.5, 3]),
+  };
+  render();
+  toast('随机设定已抽到，看看这回是什么龙生。');
+});
+
+async function loadAtlas() {
+  if (!atlasImage) {
+    atlasImage = new Image();
+    atlasImage.src = ATLAS.src;
+  }
+  try { await atlasImage.decode(); }
+  catch { atlasImage = null; throw new Error('图片暂时没有加载好，请稍后重试。'); }
+  return atlasImage;
+}
+
+$('export-card').addEventListener('click', async () => {
+  const button = $('export-card');
+  if (button.disabled) return;
+  button.disabled = true;
+  const snapshot = { ...inputs };
+  try {
+    const plan = calculatePlan(snapshot);
+    const portrait = getPortraitState({ age: plan.retirementAge, monthlySpending: plan.monthlySpending });
+    const image = await loadAtlas();
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 1200;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('当前浏览器暂不支持保存图片。');
+    const font = '"PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#fff5d6';
+    ctx.fillRect(0, 0, 900, 1200);
+    ctx.strokeStyle = '#28251f';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(27, 27, 846, 1146);
+    ctx.fillStyle = '#28251f';
+    ctx.textAlign = 'center';
+    ctx.font = `900 56px ${font}`;
+    ctx.fillText('奶龙退休变身器', 450, 110);
+    ctx.font = `500 25px ${font}`;
+    ctx.fillText(`${snapshot.currentAge} 岁出发，再上 ${snapshot.workYears} 年班`, 450, 158);
+    ctx.fillStyle = '#f7cc35';
+    ctx.fillRect(230, 185, 440, 65);
+    ctx.strokeRect(230, 185, 440, 65);
+    ctx.fillStyle = '#28251f';
+    ctx.font = `800 34px ${font}`;
+    ctx.fillText(`${plan.retirementAge} 岁 · ${portrait.ageLabel}`, 450, 230);
+    const width = image.naturalWidth / ATLAS.columns;
+    const height = image.naturalHeight / ATLAS.rows;
+    ctx.drawImage(image, portrait.column * width, portrait.row * height, width, height, 200, 270, 500, 500 * height / width);
+    ctx.font = `900 42px ${font}`;
+    ctx.fillText(plan.monthlySpending > 0 ? portrait.lifestyle.label : '这会儿还躺不了', 450, 800);
+    ctx.font = `500 25px ${font}`;
+    ctx.fillText(plan.monthlySpending > 0 ? portrait.lifestyle.description : '退休的心有了，生活费还没到位。', 450, 846);
+    ctx.fillStyle = '#fffdf7';
+    ctx.fillRect(82, 882, 736, 160);
+    ctx.strokeRect(82, 882, 736, 160);
+    ctx.fillStyle = '#28251f';
+    ctx.font = `500 23px ${font}`;
+    ctx.fillText('可持续月支出 · 今天的购买力', 450, 922);
+    ctx.font = `900 61px ${font}`;
+    ctx.fillText(`¥ ${money.format(plan.monthlySpending)} / 月`, 450, 995);
+    ctx.font = `500 20px ${font}`;
+    ctx.fillText(`税后月薪 ¥${money.format(snapshot.monthlyIncome)} · 已有资产 ${money.format(snapshot.initialAssets / 10000)} 万`, 450, 1081);
+    ctx.fillText(`实际年收益假设：工作期 ${snapshot.workReturn}% / 退休后 ${snapshot.retirementReturn}%`, 450, 1116);
+    ctx.font = `400 15px ${font}`;
+    ctx.fillStyle = '#756f60';
+    ctx.fillText('奶龙同人整活 · 非官方 · 固定收益情景，不代表真实退休保障', 450, 1153);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) throw new Error('图片生成失败，请重试。');
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `我的龙生-${plan.retirementAge}岁-${money.format(plan.monthlySpending).replaceAll(',', '')}元.png`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    toast('龙生表情卡已生成，去相册或下载文件里看看。');
+  } catch (error) {
+    toast(error.message || '图片暂时没准备好，请重试。');
+  } finally { button.disabled = false; }
+});
+
 render();
 hydrateHash();
