@@ -4,6 +4,10 @@
 
 这是一个无第三方依赖的中文静态网页，采用 MIT 许可证。计算在浏览器本地完成；分享链接把方案参数放在 URL 的 hash 中，拿到链接的人可以看到这些参数。
 
+[在线体验](https://retirement-playground-20261026.abloomegret517.chatgpt.site) · [GitHub 源码](https://github.com/Chen-HongRu/retirement-simulator) · [下载源码包](https://retirement-playground-20261026.abloomegret517.chatgpt.site/source-code.zip)
+
+![退休以后桌面预览](docs/preview.png)
+
 ## 本地运行
 
 需要 Node.js 20 或更新版本，无需安装依赖。

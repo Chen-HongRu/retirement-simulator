@@ -6,7 +6,7 @@ import { deflateRawSync } from 'node:zlib';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const files = ['README.md', 'LICENSE', 'package.json', '.gitignore'];
-for (const directory of ['dist', 'scripts', 'tests']) {
+for (const directory of ['dist', 'scripts', 'tests', 'docs']) {
   for (const entry of await readdir(resolve(root, directory), { withFileTypes: true })) {
     if (entry.isFile() && !entry.name.endsWith('.zip')) files.push(`${directory}/${entry.name}`);
   }
