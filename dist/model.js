@@ -4,8 +4,7 @@ export const DEFAULTS = Object.freeze({
   workYears: 40,
   currentAge: 22,
   initialAssets: 0,
-  workReturn: 0,
-  retirementReturn: 2.5,
+  annualReturn: 2.5,
 });
 
 export const LIMITS = Object.freeze({
@@ -13,8 +12,7 @@ export const LIMITS = Object.freeze({
   workYears: Object.freeze({ min: 0, max: 50, step: 1 }),
   currentAge: Object.freeze({ min: 18, max: 60, step: 1 }),
   initialAssets: Object.freeze({ min: 0, max: 10000000, step: 10000 }),
-  workReturn: Object.freeze({ min: -2, max: 8, step: 0.1 }),
-  retirementReturn: Object.freeze({ min: 0, max: 5, step: 0.1 }),
+  annualReturn: Object.freeze({ min: 0, max: 5, step: 0.1 }),
 });
 
 function validate(input) {
@@ -37,7 +35,8 @@ function validate(input) {
 
 /**
  * Solve a constant real monthly spending amount, including during employment.
- * Work returns are annual effective rates; contributions arrive at month end.
+ * One real annual effective rate applies before and after retirement.
+ * Work contributions arrive at month end.
  * Retirement uses the simplified annual convention: corpus = 12 * spending / r.
  * savingsRate is a fraction, and contributions include the initial assets.
  */
@@ -48,11 +47,11 @@ export function calculatePlan(input = DEFAULTS) {
     workYears,
     currentAge,
     initialAssets,
-    workReturn,
-    retirementReturn,
+    annualReturn,
   } = input;
   const months = workYears * 12;
-  const monthlyLogGrowth = Math.log1p(workReturn / 100) / 12;
+  const rate = annualReturn / 100;
+  const monthlyLogGrowth = Math.log1p(rate) / 12;
   const monthlyReturn = Math.expm1(monthlyLogGrowth);
   const accumulation = (count) => ({
     growth: Math.exp(monthlyLogGrowth * count),
@@ -61,12 +60,11 @@ export function calculatePlan(input = DEFAULTS) {
       : Math.expm1(monthlyLogGrowth * count) / monthlyReturn,
   });
   const { growth, annuity } = accumulation(months);
-  const retirementRate = retirementReturn / 100;
-  const zeroReturn = retirementRate === 0;
+  const zeroReturn = rate === 0;
   const monthlySpending = zeroReturn
     ? 0
-    : retirementRate * (initialAssets * growth + monthlyIncome * annuity)
-      / (retirementRate * annuity + 12);
+    : rate * (initialAssets * growth + monthlyIncome * annuity)
+      / (rate * annuity + 12);
   const monthlySaving = monthlyIncome - monthlySpending;
   const retirementAssets = initialAssets * growth + monthlySaving * annuity;
   const totalContributions = initialAssets + monthlySaving * months;
@@ -83,7 +81,7 @@ export function calculatePlan(input = DEFAULTS) {
   return {
     monthlySpending,
     retirementAssets,
-    targetAssets: zeroReturn ? null : 12 * monthlySpending / retirementRate,
+    targetAssets: zeroReturn ? null : 12 * monthlySpending / rate,
     retirementAge: currentAge + workYears,
     monthlySaving,
     savingsRate: monthlySaving / monthlyIncome,

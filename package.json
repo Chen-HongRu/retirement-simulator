@@ -1,6 +1,6 @@
 {
   "name": "retirement-simulator",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "奶龙退休变身器：拖动奶龙，看看你的退休龙生。",
   "private": true,
   "type": "module",

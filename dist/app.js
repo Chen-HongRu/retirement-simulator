@@ -39,6 +39,13 @@ function hydrateHash() {
   const raw = location.hash.slice(1);
   if (!raw.includes('=')) return;
   const params = new URLSearchParams(raw);
+  // Existing public links used separate rates. Use the former retirement rate
+  // for both phases and tell the visitor that the old scenario was recalculated.
+  const legacyRate = !params.has('annualReturn') && (params.has('retirementReturn') || params.has('workReturn'));
+  if (legacyRate) {
+    const oldKey = params.has('retirementReturn') ? 'retirementReturn' : 'workReturn';
+    for (const value of params.getAll(oldKey)) params.append('annualReturn', value);
+  }
   const next = { ...DEFAULTS };
   let warning = false;
   let recognized = false;
@@ -58,7 +65,10 @@ function hydrateHash() {
     if (next[key] !== number) warning = true;
   }
   if (recognized) { inputs = next; render(); }
-  if (warning) toast('链接中的部分参数无效，已恢复默认值或调整到可用范围。');
+  const notices = [];
+  if (legacyRate) notices.push(`旧链接已按统一实际年收益率 ${inputs.annualReturn}% 重新计算。`);
+  if (warning) notices.push('部分参数无效，已恢复默认值或调整到可用范围。');
+  if (notices.length) toast(notices.join(''));
 }
 
 function chart(plan) {
@@ -106,8 +116,7 @@ function render() {
   $('assets-number').value = inputs.initialAssets / 10000;
   setValueUnit('workYears-value', inputs.workYears, '年');
   setValueUnit('currentAge-value', inputs.currentAge, '岁');
-  setValueUnit('workReturn-value', inputs.workReturn, '%');
-  setValueUnit('retirementReturn-value', inputs.retirementReturn, '%');
+  setValueUnit('annualReturn-value', inputs.annualReturn, '%');
   setText('start-age-note', inputs.currentAge);
   setText('initial-note', `${money.format(inputs.initialAssets / 10000)} 万元`);
   for (const button of document.querySelectorAll('[data-years]')) button.setAttribute('aria-pressed', String(Number(button.dataset.years) === inputs.workYears));
@@ -146,7 +155,7 @@ function render() {
   setValueUnit('retirement-assets', decimal.format(plan.retirementAssets / 10000), '万元');
   setText('saving-label', inputs.workYears === 0 ? (plan.monthlySaving < 0 ? '若工作每月动用资产' : '若工作每月可存') : plan.monthlySaving < 0 ? '每月动用资产' : '工作时每月存');
   setValueUnit('monthly-saving', money.format(Math.abs(plan.monthlySaving)), '元');
-  setText('spending-caption', plan.zeroReturn ? '0% 实际收益无法在保本条件下永久支持正支出。' : '从现在到退休后，都维持这个生活预算。');
+  setText('spending-caption', plan.zeroReturn ? '0% 实际收益无法在保本条件下永久支持正支出。' : '从现在到退休后，每月支出保持相同购买力。');
   setText('result-note', plan.zeroReturn ? '退休时资产为工作期积累额；它不是支持正支出的永久退休目标。' : '这是固定收益假设下的平衡点，实际生活和市场都会变化。');
   const savingPercent = plan.savingsRate * 100;
   $('saving-bar').style.width = `${Math.max(0, Math.min(100, savingPercent))}%`;
@@ -157,7 +166,7 @@ function render() {
     const deltaAge = plan.retirementAge - comparison.plan.retirementAge;
     setText('insight-label', '和留住的方案比一比');
     setText('insight-main', `月支出 ${signed(deltaSpend)} 元`);
-    setText('insight-detail', `当前 ${plan.retirementAge} 岁退休，比留住的方案${deltaAge > 0 ? `晚 ${deltaAge} 年` : deltaAge < 0 ? `早 ${Math.abs(deltaAge)} 年` : '退休年龄相同'}。${plan.zeroReturn ? '当前 0% 退休收益无法永久支持正支出。' : '两条曲线使用相同年龄与资产刻度。'}`);
+    setText('insight-detail', `当前 ${plan.retirementAge} 岁退休，比留住的方案${deltaAge > 0 ? `晚 ${deltaAge} 年` : deltaAge < 0 ? `早 ${Math.abs(deltaAge)} 年` : '退休年龄相同'}。${plan.zeroReturn ? '当前 0% 实际收益无法永久支持正支出。' : '两条曲线使用相同年龄与资产刻度。'}`);
   } else {
     setText('insight-label', '给未来的自己');
     setText('insight-main', plan.zeroReturn ? '保本与永久支出，需要正的实际收益。' : plan.monthlySaving < 0 ? '已有资产，也在为今天的生活出力。' : `每月留下 ${percent.format(savingPercent)}%，为未来多一点从容。`);
@@ -168,7 +177,7 @@ function render() {
   $('compare').setAttribute('aria-pressed', String(Boolean(comparison)));
   chart(plan);
   clearTimeout(liveTimer);
-  liveTimer = setTimeout(() => setText('live-result', `${plan.retirementAge} 岁退休，可持续月支出 ${money.format(plan.monthlySpending)} 元，退休时资产 ${decimal.format(plan.retirementAssets / 10000)} 万元。${plan.zeroReturn ? '零实际收益无法永久支持正支出。' : ''}`), 300);
+  liveTimer = setTimeout(() => setText('live-result', `${plan.retirementAge} 岁退休，可支配月支出 ${money.format(plan.monthlySpending)} 元，退休时资产 ${decimal.format(plan.retirementAssets / 10000)} 万元。${plan.zeroReturn ? '零实际收益无法永久支持正支出。' : ''}`), 300);
 }
 
 $('controls').addEventListener('submit', (event) => event.preventDefault());
@@ -274,8 +283,7 @@ $('randomize').addEventListener('click', () => {
     workYears: pick([5, 10, 15, 20, 25, 30, 35, 40]),
     currentAge: pick([22, 25, 30, 35, 40]),
     initialAssets: pick([0, 0, 100000, 500000, 1000000]),
-    workReturn: pick([0, 0, 1, 2]),
-    retirementReturn: pick([1, 1.5, 2, 2.5, 3]),
+    annualReturn: pick([1, 1.5, 2, 2.5, 3]),
   };
   render();
   toast('随机设定已抽到，看看这回是什么龙生。');
@@ -335,12 +343,12 @@ $('export-card').addEventListener('click', async () => {
     ctx.strokeRect(82, 882, 736, 160);
     ctx.fillStyle = '#28251f';
     ctx.font = `500 23px ${font}`;
-    ctx.fillText('可持续月支出 · 今天的购买力', 450, 922);
+    ctx.fillText('可支配月支出 · 退休前后保持相同购买力', 450, 922);
     ctx.font = `900 61px ${font}`;
     ctx.fillText(`¥ ${money.format(plan.monthlySpending)} / 月`, 450, 995);
     ctx.font = `500 20px ${font}`;
     ctx.fillText(`税后月薪 ¥${money.format(snapshot.monthlyIncome)} · 已有资产 ${money.format(snapshot.initialAssets / 10000)} 万`, 450, 1081);
-    ctx.fillText(`实际年收益假设：工作期 ${snapshot.workReturn}% / 退休后 ${snapshot.retirementReturn}%`, 450, 1116);
+    ctx.fillText(`统一实际年收益率 ${snapshot.annualReturn}% · 金额按今天的购买力`, 450, 1116);
     ctx.font = `400 15px ${font}`;
     ctx.fillStyle = '#756f60';
     ctx.fillText('奶龙同人整活 · 非官方 · 固定收益情景，不代表真实退休保障', 450, 1153);
